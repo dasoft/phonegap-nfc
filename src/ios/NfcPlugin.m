@@ -91,7 +91,7 @@
         [self.commandDelegate sendPluginResult:pluginResult callbackId:ndefStartSessionCallbackId];
     }
 
-    [self fireSessionInvalidatedEvent:[error ]];
+    [self fireSessionInvalidatedEvent: error];
 }
 
 - (void) readerSessionDidBecomeActive:(nonnull NFCReaderSession *)session {
