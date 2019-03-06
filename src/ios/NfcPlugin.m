@@ -124,7 +124,7 @@
     });
 }
 
--(void) fireSessionInvalidatedEvent: {
+-(void) fireSessionInvalidatedEvent {
     NSLog(@"Session Invalidated");
 
     // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
