@@ -848,10 +848,11 @@ function fireNfcTagEvent(eventType, tagAsJson) {
     }, 10);
 }
 
-function fireSessionInvalidatedEvent() {
+function fireSessionInvalidatedEvent(code) {
     setTimeout(function () {
         var e = document.createEvent('Events');
         e.initEvent("sessionInvalidated", true, false);
+        e.code = code;
         document.dispatchEvent(e);
     }, 10);
 }
