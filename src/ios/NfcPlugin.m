@@ -84,14 +84,14 @@
 }
 
 - (void) readerSession:(NFCNDEFReaderSession *)session didInvalidateWithError:(NSError *)error {
-    NSLog(@"didInvalidateWithError %@ %@ %@", error.localizedDescription, error.localizedFailureReason, error);
+    NSLog(@"didInvalidateWithError %@ %@ %@", error.localizedDescription, error.localizedFailureReason);
     if (ndefStartSessionCallbackId) {
         NSString* errorMessage = [NSString stringWithFormat:@"error: %@", error.localizedDescription];
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:ndefStartSessionCallbackId];
     }
 
-    [self fireSessionInvalidatedEvent: error];
+    [self fireSessionInvalidatedEvent: error.code];
 }
 
 - (void) readerSessionDidBecomeActive:(nonnull NFCReaderSession *)session {
@@ -124,11 +124,9 @@
     });
 }
 
--(void) fireSessionInvalidatedEvent:(NSString *)reason {
-    NSLog(@"Session Invalidated");
-
+-(void) fireSessionInvalidatedEvent:(NSInteger)reason {
     // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
-    NSString *function = @"fireSessionInvalidatedEvent()";
+    NSString *function = [NSString stringWithFormat:@"fireSessionInvalidatedEvent(%d)", reason];
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([[self webView] isKindOfClass:WKWebView.class])
           [(WKWebView*)[self webView] evaluateJavaScript:function completionHandler:^(id result, NSError *error) {}];
