@@ -431,6 +431,10 @@ var nfc = {
         cordova.exec(win, fail, "NfcPlugin", "registerNdefFormatable", []);
     },
 
+    addSessionInvalidatedListener: function(callback) {
+        document.addEventListener("sessionInvalidated", callback, false);
+    },
+
     write: function (ndefMessage, win, fail) {
         cordova.exec(win, fail, "NfcPlugin", "writeTag", [ndefMessage]);
     },
@@ -480,6 +484,10 @@ var nfc = {
     removeNdefListener: function (callback, win, fail) {
         document.removeEventListener("ndef", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "removeNdef", []);
+    },
+
+    removeSessionInvalidatedListener: function(callback) {
+        document.removeEventListener("sessionInvalidated", callback, false);
     },
 
     showSettings: function (win, fail) {
@@ -840,6 +848,14 @@ function fireNfcTagEvent(eventType, tagAsJson) {
     }, 10);
 }
 
+function fireSessionInvalidatedEvent() {
+    setTimeout(function () {
+        var e = document.createEvent('Events');
+        e.initEvent("sessionInvalidated", true, false);
+        document.dispatchEvent(e);
+    }, 10);
+}
+
 // textHelper and uriHelper aren't exported, add a property
 ndef.uriHelper = uriHelper;
 ndef.textHelper = textHelper;
@@ -855,6 +871,7 @@ window.nfc = nfc;
 window.ndef = ndef;
 window.util = util;
 window.fireNfcTagEvent = fireNfcTagEvent;
+window.fireSessionInvalidatedEvent = fireSessionInvalidatedEvent;
 
 // This channel receives nfcEvent data from native code 
 // and fires JavaScript events.

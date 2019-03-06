@@ -90,6 +90,8 @@
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:ndefStartSessionCallbackId];
     }
+
+    [self ]
 }
 
 - (void) readerSessionDidBecomeActive:(nonnull NFCReaderSession *)session {
@@ -114,6 +116,19 @@
 
     // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
     NSString *function = [NSString stringWithFormat:@"fireNfcTagEvent('ndef', '%@')", ndefMessageAsJSONString];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([[self webView] isKindOfClass:WKWebView.class])
+          [(WKWebView*)[self webView] evaluateJavaScript:function completionHandler:^(id result, NSError *error) {}];
+        else
+          [(UIWebView*)[self webView] stringByEvaluatingJavaScriptFromString: function];
+    });
+}
+
+-(void) fireSessionInvalidatedEvent: {
+    NSLog(@"Session Invalidated");
+
+    // construct string to call JavaScript function fireNfcTagEvent(eventType, tagAsJson);
+    NSString *function = @"fireSessionInvalidatedEvent()";
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([[self webView] isKindOfClass:WKWebView.class])
           [(WKWebView*)[self webView] evaluateJavaScript:function completionHandler:^(id result, NSError *error) {}];
