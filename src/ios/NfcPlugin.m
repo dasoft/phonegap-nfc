@@ -33,6 +33,10 @@
 - (void)beginSession:(CDVInvokedUrlCommand*)command {
     NSLog(@"beginSession");
 
+    if(_nfcSession) {
+        [_nfcSession invalidateSession];
+    }
+
     _nfcSession = [[NFCNDEFReaderSession new]initWithDelegate:self queue:nil invalidateAfterFirstRead:TRUE];
     ndefStartSessionCallbackId = [command.callbackId copy];
     [_nfcSession beginSession];
@@ -84,7 +88,8 @@
 }
 
 - (void) readerSession:(NFCNDEFReaderSession *)session didInvalidateWithError:(NSError *)error {
-    NSLog(@"didInvalidateWithError %@ %@ %@", error.localizedDescription, error.localizedFailureReason);
+    NSLog(@"NFCNDEFReaderSession didInvalidateWithError %ld %@ %@", error.code, error.localizedDescription, error.localizedFailureReason);
+    
     if (ndefStartSessionCallbackId) {
         NSString* errorMessage = [NSString stringWithFormat:@"error: %@", error.localizedDescription];
         CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:errorMessage];
