@@ -495,8 +495,8 @@ var nfc = {
     },
 
     // iOS only
-    beginSession: function (win, fail) {
-        cordova.exec(win, fail, "NfcPlugin", "beginSession", []);
+    beginSession: function (win, fail, invalidateAfterFirstRead = true) {
+        cordova.exec(win, fail, "NfcPlugin", "beginSession", [!!invalidateAfterFirstRead]);
     },
 
     // iOS only
