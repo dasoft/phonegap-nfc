@@ -410,7 +410,10 @@ var ndef = {
 
 // nfc provides javascript wrappers to the native phonegap implementation
 var nfc = {
-    
+    _invalidateAfterFirstRead: false,
+    setInvalidateAfterFirstRead: function(invalidateAfterFirstRead) {
+        this._invalidateAfterFirstRead = invalidateAfterFirstRead;
+    },
     addTagDiscoveredListener: function (callback, win, fail) {
         document.addEventListener("tag", callback, false);
         cordova.exec(win, fail, "NfcPlugin", "registerTag", []);
@@ -495,8 +498,8 @@ var nfc = {
     },
 
     // iOS only
-    beginSession: function (win, fail, invalidateAfterFirstRead = true) {
-        cordova.exec(win, fail, "NfcPlugin", "beginSession", [!!invalidateAfterFirstRead]);
+    beginSession: function (win, fail) {
+        cordova.exec(win, fail, "NfcPlugin", "beginSession", [!!this._invalidateAfterFirstRead]);
     },
 
     // iOS only
