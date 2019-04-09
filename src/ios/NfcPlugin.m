@@ -33,9 +33,9 @@
 - (void)beginSession:(CDVInvokedUrlCommand*)command {
     NSLog(@"beginSession");
 
-    Boolean invalidateAfterFirstRead = [command.arguments objectAtIndex:0];
+    BOOL invalidateAfterFirstRead = [command argumentAtIndex:0];
 
-    NSLog(@"invalidateAfterFirstRead %@", invalidateAfterFirstRead);
+    NSLog(@"invalidateAfterFirstRead %d", invalidateAfterFirstRead);
 
     if(_nfcSession) {
         [_nfcSession invalidateSession];
