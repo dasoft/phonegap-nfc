@@ -244,6 +244,10 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                 json = Util.tagToJSON(tag);
             }
 
+            Intent tagIntent = new Intent();
+            tagIntent.putExtra(NfcAdapter.EXTRA_TAG, tag);
+            setIntent(tagIntent);
+
             PluginResult result = new PluginResult(PluginResult.Status.OK, json);
             result.setKeepCallback(true);
             readerModeCallback.sendPluginResult(result);
@@ -856,7 +860,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
             try {
 
                 Tag tag = getIntent().getParcelableExtra(NfcAdapter.EXTRA_TAG);
-                if (tag == null) {
+                if (tag == null && savedIntent != null) {
                     tag = savedIntent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
                 }
 
@@ -866,6 +870,8 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     return;
                 }
 
+                JSONObject resultObject = new JSONObject();
+
                 // get technologies supported by this tag
                 List<String> techList = Arrays.asList(tag.getTechList());
                 if (techList.contains(tech)) {
@@ -873,6 +879,16 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
                     tagTechnologyClass = Class.forName(tech);
                     Method method = tagTechnologyClass.getMethod("get", Tag.class);
                     tagTechnology = (TagTechnology) method.invoke(null, tag);
+
+                    // If the tech supports it, return maxTransceiveLength and return it to the user
+                    try {
+                        Method maxTransceiveLengthMethod = tagTechnologyClass.getMethod("getMaxTransceiveLength");
+                        resultObject.put("maxTransceiveLength", maxTransceiveLengthMethod.invoke(tagTechnology));
+                    } catch(NoSuchMethodException e) {
+                        // Some technologies do not support this, so just ignore.
+                    } catch(JSONException e) {
+                        Log.e(TAG, "Error serializing JSON", e);
+                    }
                 }
 
                 if (tagTechnology == null) {
@@ -882,7 +898,7 @@ public class NfcPlugin extends CordovaPlugin implements NfcAdapter.OnNdefPushCom
 
                 tagTechnology.connect();
                 setTimeout(timeout);
-                callbackContext.success();
+                callbackContext.success(resultObject);
 
             } catch (IOException ex) {
                 Log.e(TAG, "Tag connection failed", ex);
